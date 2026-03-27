@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: immo-app
-        image: VOTRE_USERNAME_DOCKER_HUB/immo-app:latest
+        image: sasow/immo-app:latest
         imagePullPolicy: Always
         ports:
         - containerPort: 80
