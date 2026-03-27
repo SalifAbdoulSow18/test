@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: immo-app-service
+  namespace: immo-app
+spec:
+  selector:
+    app: immo-app
+  ports:
+  - port: 80
+    targetPort: 80
+    nodePort: 30080
+  type: NodePort

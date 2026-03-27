@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: immo-app
+  namespace: immo-app
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: immo-app
+  template:
+    metadata:
+      labels:
+        app: immo-app
+    spec:
+      containers:
+      - name: immo-app
+        image: VOTRE_USERNAME_DOCKER_HUB/immo-app:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 80
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "200m"
