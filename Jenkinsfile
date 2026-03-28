@@ -3,6 +3,7 @@ pipeline {
     
     environment {
         DOCKER_HUB_USERNAME = 'sasow'
+        GITHUB_USERNAME = 'SalifAbdoulSow18'
         DOCKER_HUB_REPO = 'immo-app'
         IMAGE_NAME = "${DOCKER_HUB_USERNAME}/${DOCKER_HUB_REPO}"
         K8S_NAMESPACE = 'immo-app'
@@ -18,7 +19,7 @@ pipeline {
             steps {
                 echo "📦 Récupération du code..."
                 git branch: 'main', 
-                    url: 'https://github.com/sasow/immo-app.git',
+                    url: 'https://github.com/${GITHUB_USERNAME}/immo-app.git',
                     credentialsId: 'github-credentials'
                 echo "✅ Code récupéré - Commit: ${env.GIT_COMMIT}"
             }
@@ -83,7 +84,7 @@ pipeline {
                         git config user.name "Jenkins CI"
                         git add k8s/deployment.yaml
                         git commit -m "release: bump image to ${IMAGE_NAME}:${env.APP_VERSION} [skip ci]"
-                        git push https://github.com/sasow/immo-app.git main
+                        git push https://github.com/${GITHUB_USERNAME}/immo-app.git main
                     """
                 }
                 echo "✅ Manifests mis à jour sur GitHub"

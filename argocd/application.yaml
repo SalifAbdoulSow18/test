@@ -7,7 +7,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/sasow/immo-app.git
+    repoURL: https://github.com/SalifAbdoulSow18/immo-app.git
     targetRevision: main
     path: k8s
   destination:
