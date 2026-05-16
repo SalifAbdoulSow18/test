@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: test
-        image: sasow/test:latest
+        image: sasow/test:1.0.0
         imagePullPolicy: Always
         ports:
         - containerPort: 80
