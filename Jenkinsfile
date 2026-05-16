@@ -57,11 +57,11 @@ pipeline {
                         # Mettre à jour l'image dans deployment.yaml avec latest
                         sed -i "s|image: ${IMAGE_NAME}:.*|image: ${IMAGE_NAME}:latest|" k8s/deployment.yaml
                         
-                        git config user.email "jenkins@immoapp.com"
+                        git config user.email "jenkins@test.com"
                         git config user.name "Jenkins CI"
                         git add k8s/deployment.yaml
                         git commit -m "release: update image to latest [skip ci]" || echo "No changes"
-                        git push https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/immo-app.git main
+                        git push https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/test.git main
                     """
                 }
                 echo "✅ Manifests mis à jour sur GitHub"
