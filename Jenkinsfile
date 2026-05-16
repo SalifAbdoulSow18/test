@@ -77,7 +77,7 @@ pipeline {
                         kubectl apply -f k8s/namespace.yaml
                         kubectl apply -f k8s/deployment.yaml
                         kubectl apply -f k8s/service.yaml
-                        kubectl rollout status deployment/immo-app -n ${K8S_NAMESPACE} --timeout=120s
+                        kubectl rollout status deployment/test -n ${K8S_NAMESPACE} --timeout=120s
                     """
                 }
                 echo "✅ Déploiement terminé"
