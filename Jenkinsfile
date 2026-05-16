@@ -68,21 +68,21 @@ pipeline {
             }
         }
         
-        stage('Deploy to Kubernetes') {
-            steps {
-                echo "☸️ Déploiement sur Kubernetes..."
-                script {
-                    sh """
-                        export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-                        kubectl apply -f k8s/namespace.yaml
-                        kubectl apply -f k8s/deployment.yaml
-                        kubectl apply -f k8s/service.yaml
-                        kubectl rollout status deployment/test -n ${K8S_NAMESPACE} --timeout=120s
-                    """
-                }
-                echo "✅ Déploiement terminé"
-            }
-        }
+        // stage('Deploy to Kubernetes') {
+        //     steps {
+        //         echo "☸️ Déploiement sur Kubernetes..."
+        //         script {
+        //             sh """
+        //                 export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
+        //                 kubectl apply -f k8s/namespace.yaml
+        //                 kubectl apply -f k8s/deployment.yaml
+        //                 kubectl apply -f k8s/service.yaml
+        //                 kubectl rollout status deployment/test -n ${K8S_NAMESPACE} --timeout=120s
+        //             """
+        //         }
+        //         echo "✅ Déploiement terminé"
+        //     }
+        // }
     }
     
     post {

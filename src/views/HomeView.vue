@@ -25,7 +25,7 @@
         <div class="stat-label">Service client</div>
       </div>
       <div class="stat-item">
-        <div class="stat-number">98%</div>
+        <div class="stat-number">100%</div>
         <div class="stat-label">Satisfaction client</div>
       </div>
     </div>
