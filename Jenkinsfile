@@ -7,6 +7,7 @@ pipeline {
         DOCKER_HUB_REPO = 'test'
         IMAGE_NAME = "${DOCKER_HUB_USERNAME}/${DOCKER_HUB_REPO}"
         K8S_NAMESPACE = 'test'
+        IP = 'demystops.com' // Remplacez par l'IP de votre cluster ou domaine
     }
     
     stages {
@@ -15,7 +16,7 @@ pipeline {
                 echo "📦 Récupération du code..."
                 git branch: 'main', 
                     url: 'https://github.com/SalifAbdoulSow18/test.git',
-                    credentialsId: 'github-credentials-test'
+                    credentialsId: 'github-credentials'
                 echo "✅ Code récupéré"
             }
         }
@@ -94,7 +95,7 @@ pipeline {
                 ════════════════════════════════════════════════════════════════
                 
                 🐳 Image: ${IMAGE_NAME}:latest
-                🌐 Application: http://${IP}:30080
+                🌐 Application: http://${IP}:30082
                 
                 ════════════════════════════════════════════════════════════════
                 """
