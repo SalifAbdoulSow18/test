@@ -32,68 +32,62 @@ pipeline {
             }
         }
         
-        // stage('Build Docker Image') {
-        //     steps {
-        //         echo "🐳 Build de l'image Docker..."
-        //         script {
-        //             sh """
-        //                 docker build -t ${IMAGE_NAME}:latest .
-        //                 docker tag ${IMAGE_NAME}:latest ${IMAGE_NAME}:${env.GIT_COMMIT}
-        //             """
-        //         }
-        //         echo "✅ Image buildée"
-        //     }
-        // }
+        stage('Build Docker Image') {
+            steps {
+                echo "🐳 Build de l'image Docker..."
+                script {
+                    sh """
+                        docker build -t ${IMAGE_NAME}:${env.APP_VERSION} .
+                        docker tag ${IMAGE_NAME}:${env.APP_VERSION} ${IMAGE_NAME}:latest
+                    """
+                }
+                echo "✅ Image buildée"
+            }
+        }
         
-        // stage('Push to Docker Hub') {
-        //     steps {
-        //         echo "📤 Push vers Docker Hub..."
-        //         withCredentials([string(credentialsId: 'docker-hub-password', variable: 'DOCKER_PASS')]) {
-        //             sh """
-        //                 echo "${DOCKER_PASS}" | docker login -u ${DOCKER_HUB_USERNAME} --password-stdin
-        //                 docker push ${IMAGE_NAME}:latest
-        //                 docker push ${IMAGE_NAME}:${env.GIT_COMMIT}
-        //                 docker logout
-        //             """
-        //         }
-        //         echo "✅ Image poussée sur Docker Hub"
-        //     }
-        // }
+        stage('Push to Docker Hub') {
+            steps {
+                echo "📤 Push vers Docker Hub..."
+                withCredentials([string(credentialsId: 'docker-hub-password', variable: 'DOCKER_PASS')]) {
+                    sh """
+                        echo "${DOCKER_PASS}" | docker login -u ${DOCKER_HUB_USERNAME} --password-stdin
+                        docker push ${IMAGE_NAME}:${env.APP_VERSION}
+                        docker push ${IMAGE_NAME}:latest
+                        docker logout
+                    """
+                }
+                echo "✅ Image poussée sur Docker Hub"
+            }
+        }
         
-        // stage('Update Git Manifests') {
-        //     steps {
-        //         echo "📝 Mise à jour du tag dans les manifests..."
-        //         withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
-        //             sh """
-        //                 # Mettre à jour l'image dans deployment.yaml avec latest
-        //                 sed -i "s|image: ${IMAGE_NAME}:.*|image: ${IMAGE_NAME}:latest|" k8s/deployment.yaml
+        stage('Update Git Manifests') {
+            steps {
+                echo "📝 Mise à jour du tag dans les manifests..."
+                withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+                    sh """
+                        # Mettre à jour l'image dans deployment.yaml avec avec la nouvelle version
+                        sed -i "s|image: ${IMAGE_NAME}:.*|image: ${IMAGE_NAME}:${env.APP_VERSION}|" k8s/deployment.yaml
                         
-        //                 git config user.email "jenkins@test.com"
-        //                 git config user.name "Jenkins CI"
-        //                 git add k8s/deployment.yaml
-        //                 git commit -m "release: update image to latest [skip ci]" || echo "No changes"
-        //                 git push https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/test.git main
-        //             """
-        //         }
-        //         echo "✅ Manifests mis à jour sur GitHub"
-        //     }
-        // }
+                        git config user.email "jenkins@test.com"
+                        git config user.name "Jenkins CI"
+                        git add k8s/deployment.yaml
+                        git commit -m "release: update image to ${env.APP_VERSION} [skip ci]" || echo "No changes"
+                        git push https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/test.git main
+                    """
+                }
+                echo "✅ Manifests mis à jour sur GitHub"
+            }
+        }
         
-        // stage('Deploy to Kubernetes') {
-        //     steps {
-        //         echo "☸️ Déploiement sur Kubernetes..."
-        //         script {
-        //             sh """
-        //                 export KUBECONFIG=/etc/rancher/k3s/k3s.yaml
-        //                 kubectl apply -f k8s/namespace.yaml
-        //                 kubectl apply -f k8s/deployment.yaml
-        //                 kubectl apply -f k8s/service.yaml
-        //                 kubectl rollout status deployment/test -n ${K8S_NAMESPACE} --timeout=120s
-        //             """
-        //         }
-        //         echo "✅ Déploiement terminé"
-        //     }
-        // }
+        stage('Sync with ArgoCD') {
+            steps {
+                echo "🔄 Synchronisation avec ArgoCD..."
+                sh """
+                    argocd app sync test --grpc-web
+                """
+                echo "✅ Synchronisation déclenchée"
+            }
+        }
     }
     
     post {
