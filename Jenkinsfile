@@ -10,26 +10,27 @@ pipeline {
         IP = 'demystops.com' // Remplacez par l'IP de votre cluster ou domaine
     }
     
-    stage('Check Commit Author') {
-        steps {
-            script {
-                def commitMessage = sh(
-                    script: 'git log -1 --pretty=%B', 
-                    returnStdout: true
-                ).trim()
-                
-                echo "Message du commit: ${commitMessage}"
-                
-                if (commitMessage.contains('[skip ci]')) {
-                    currentBuild.result = 'NOT_BUILT'
-                    error("⏭️ Build ignoré car le commit contient [skip ci]")
+    
+    stages {
+        stage('Check Commit Author') {
+            steps {
+                script {
+                    def commitMessage = sh(
+                        script: 'git log -1 --pretty=%B', 
+                        returnStdout: true
+                    ).trim()
+                    
+                    echo "Message du commit: ${commitMessage}"
+                    
+                    if (commitMessage.contains('[skip ci]')) {
+                        currentBuild.result = 'NOT_BUILT'
+                        error("⏭️ Build ignoré car le commit contient [skip ci]")
+                    }
+                    
+                    echo "✅ Build déclenché par un vrai commit"
                 }
-                
-                echo "✅ Build déclenché par un vrai commit"
             }
         }
-    }
-    stages {
         stage('Checkout') {
             steps {
                 echo "📦 Récupération du code..."
