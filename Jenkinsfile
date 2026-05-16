@@ -79,13 +79,14 @@ pipeline {
             }
         }
         
-        stage('Sync with ArgoCD') {
+        stage('Create GitHub Release') {
             steps {
-                echo "🔄 Synchronisation avec ArgoCD..."
-                sh """
-                    argocd app sync test --grpc-web
-                """
-                echo "✅ Synchronisation déclenchée"
+                withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+                    sh """
+                        git tag -a ${env.APP_VERSION} -m "Release ${env.APP_VERSION}" || true
+                        git push https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/test.git ${env.APP_VERSION} || true
+                    """
+                }
             }
         }
     }
@@ -93,14 +94,36 @@ pipeline {
     post {
         success {
             script {
-                def IP = sh(script: "curl -s ifconfig.me", returnStdout: true).trim()
+                // ⭐ INCÉMENTER LA VERSION APRÈS SUCCÈS ⭐
+                def currentVersion = env.APP_VERSION
+                def parts = currentVersion.split('\\.')
+                def newPatch = parts[2].toInteger() + 1
+                def newVersion = "${parts[0]}.${parts[1]}.${newPatch}"
+                
+                // Mettre à jour le fichier VERSION
+                writeFile(file: 'VERSION', text: newVersion)
+                
+                // Commit et push de la nouvelle version
+                withCredentials([string(credentialsId: 'github-token', variable: 'GITHUB_TOKEN')]) {
+                    sh """
+                        git config user.email "jenkins@test.com"
+                        git config user.name "Jenkins CI"
+                        git add VERSION
+                        git commit -m "chore: bump version to ${newVersion} [skip ci]"
+                        git push https://${GITHUB_USERNAME}:${GITHUB_TOKEN}@github.com/${GITHUB_USERNAME}/test.git main
+                    """
+                }
+                
                 echo """
                 ════════════════════════════════════════════════════════════════
                 ✅ PIPELINE RÉUSSI !
                 ════════════════════════════════════════════════════════════════
                 
-                🐳 Image: ${IMAGE_NAME}:latest
-                🌐 Application: http://${IP}:30082
+                📦 Version déployée: ${currentVersion}
+                🔄 Prochaine version: ${newVersion}
+                🐳 Image: ${IMAGE_NAME}:${currentVersion}
+                
+                🌐 Application: http://${IP}:30080
                 
                 ════════════════════════════════════════════════════════════════
                 """
